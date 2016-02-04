@@ -1,18 +1,54 @@
+##############################################################################
+##############################################################################
+#
+#   File     : Samelson_HW2.py
+#
+#   Purpose  : This program is designed for finding the most common k_mer of given
+#              length.  It searches through a given FASTA file and outputs the top
+#              5 most common k_mers of length k.
+#
+#   Developer : Lincoln Samelson
+#               CSCI 4314, Spring 2016, HW2
+#
+##############################################################################
+#
+#   Sample command line arguments to run program:
+#   Samelson_HW2.py -f YeastGenome.fasta -l 7
+#
+##############################################################################
+#
+#   Important assumptions:
+#
+#   1-
+#
+##############################################################################
+#
+#   Outline:
+#   I - Parsing command line arguments
+#   II - Finding most common Kmer
+#   III - Reading FASTA file
+#
+##############################################################################
+
+##############################################################################
+#
+#   I - Parsing command line arguments into variables
+#
+#   User must enter arguments as denoted (order does not matter):
+#   -f <FASTA filename>
+#   -l k_mer size to search for
+#
+#   The 'getopt' and 'sys' sets are imported and used to parse incoming
+#   arguments. A help function is called if the user does not enter arguments
+#   correctly.
+#
+##############################################################################
+
+
 import sys, getopt
 from collections import Counter
 from collections import defaultdict
 from operator    import itemgetter
-
-###########################################################################
-#  Main function.  Takes in command line options, opens the file, calculates GC content, finds the K-mers
-#  and outputs relevant information to "output.gff3"
-#
-#  Assumption #1:  User uses command prompt correctly using the format test.py -f <filename> -c <chromo name> -k <k-mer>
-#  Assumption #2:  User gives a legitimate chromosome with proper nucleotides, not random letters or characters
-#  Assumption #3:  User's chromosome name exists in file and K-mer is workable
-#########################################################################
-
-
 
 def user_help():
 
@@ -44,6 +80,10 @@ def parsing():
             print "\n"
         elif op=="-l":
             kmer_size = value
+            kmer_size = int(kmer_size)
+            if kmer_size > 8 or kmer_size < 3:
+                print "Sorry!  Kmer size must be between 3 and 8.  Try again."
+                sys.exit(1)
             print "\n"
         elif op=="--help":
             user_help()
@@ -60,23 +100,43 @@ def parsing():
 
 
 
-def most_common_kmer(seq, k_size):
-    accumulator = Counter(seq)
-    #for length in range (k_size, len(seq) + 1):
-        #for start in range (len(seq) - length):
-            #accumulator[seq[start:start+length]] += 1
-    #print accumulator.most_common(5)
+# def most_common_kmer(seq, k_size):
+#     accumulator = Counter(seq)
+#     #for length in range (k_size, len(seq) + 1):
+#         #for start in range (len(seq) - length):
+#             #accumulator[seq[start:start+length]] += 1
+#     #print accumulator.most_common(5)
 
-def find_most_common(s, X):
+##############################################################################
+#
+#   II- Finding most common kmer
+#
+#   1- Program finds all subsequences of given size and counts their frequencies in a dictionary
+#
+#   2- It then prints the top 5 most common kmer of the given size
+##############################################################################
+
+def find_most_common(s, size):
     freq = defaultdict(int)
-    for i in range(len(s) - X + 1):
-        freq[s[i:i+X]] += 1
+    for i in range(len(s) - size + 1):
+        freq[s[i:i + size]] += 1
     freq = freq.items()
     freq.sort(key = lambda item: item[1], reverse=True)
     top_five = freq[:5]
     print top_five
     print "\n"
 
+
+##############################################################################
+#
+#   III- Reading the FASTA file
+#
+#   1- Opens the FASTA File
+#
+#   2- Gets name of sequence and the actual sequence.
+#
+#   3- Checks to make sure it is actually a FASTA file
+##############################################################################
 
 def read_fasta_file(filename, kmer_size):
     file_open = open(filename,"r")
@@ -94,7 +154,7 @@ def read_fasta_file(filename, kmer_size):
     seq.replace("\n", "")
     print("sequence name is " + title +  "\n\n")
     print ""
-    print("The top 5 most common " + str(kmer_size) + "mers  are..." + "\n")
+    print("The top 5 most common " + str(kmer_size) + "mers are..." + "\n")
     return seq
 
 
