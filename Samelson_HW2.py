@@ -116,17 +116,60 @@ def parsing():
 #   2- It then prints the top 5 most common kmer of the given size
 ##############################################################################
 
-def find_most_common(s, size):
+def find_most_common(sequenceArray, size):
+    # s = 'hello'
+    # sequenceArray = ['hellohellohello', 'skoooooooooooooo']
+    #freq = defaultdict(int)
+    # currentkmer = {}
+    # kmer = ''
+    # numChars = 0
+    # found = 0
+    #
+    # for sequence in s:
+    #     for char in enumerate(sequence):
+    #         index = char[0]
+    #         seqLength = len(sequence)
+    #         for i in range(index, index + size):
+    #             if index <= seqLength - size:
+    #                 kmer += sequence[i]
+    #
+    #         for kmerSequence
+
+
+
     freq = defaultdict(int)
-    for i in range(len(s) - size + 1):
-        freq[s[i:i + size]] += 1
-    freq = freq.items()
-    freq.sort(key = lambda item: item[1], reverse=True)
-    top_five = freq[:5]
-    print top_five
-    print "\n"
+    finaldict = defaultdict(int)
+    #print freq
+    for s in sequenceArray:
+        #print "Unique Kmers" + "\n"
+        for i in range(len(s) - size + 1):
+            freq[s[i:i + size]] += 1
 
+        A = Counter(freq)
+        B = Counter(finaldict)
 
+        finaldict = A + B
+        freq = freq.items()
+        #print freq
+        #print '\n'
+        freq = defaultdict(int)
+    # print top_five
+    # print "\n"
+    #print finaldict
+    finaldict = finaldict.items()
+    finaldict.sort(key = lambda item: item[1], reverse=True)
+    #print finaldict
+    top_five = finaldict[:5]
+
+    return finaldict
+
+def print_top_5(finaldict):
+    finaldict = finaldict[:5]
+    print "################################################"
+    print "The top 5 most common Kmers in this FASTA File"
+    print "################################################"
+    for i in finaldict:
+        print i[0] + " " + str(i[1])
 ##############################################################################
 #
 #   III- Reading the FASTA file
@@ -139,28 +182,46 @@ def find_most_common(s, size):
 ##############################################################################
 
 def read_fasta_file(filename, kmer_size):
-    file_open = open(filename,"r")
-    line = file_open.readline()
-    if not line.startswith(">"):
-        raise TypeError("Not a FASTA file: %r" % line)
-    title = line[1:].rstrip()
-    seq = []
-    while 1:
-        line = file_open.readline().rstrip()
-        if line == "":
-            break
-        seq.append(line)
-    seq = "".join(seq)
-    seq.replace("\n", "")
-    print("sequence name is " + title +  "\n\n")
-    print ""
-    print("The top 5 most common " + str(kmer_size) + "mers are..." + "\n")
-    return seq
+    f = open(filename, 'r')
+    lines = f.readlines()
+    sequence = ''
+    sequences = []
+    for i in range(len(lines)):
+        line = lines[i].strip()
+        if line.startswith('>') == False:
+            sequence += line.strip()
+            if i == len(lines) -1:
+                sequences.append(sequence)
+                break
+        else:
+            if sequence:
+                sequences.append(sequence)
+            sequence = ""
+    #print sequences
+    #print sequence
+    return sequences
+    # file_open = open(filename,"r")
+    # line = file_open.readline()
+    # if not line.startswith(">"):
+    #     raise TypeError("Not a FASTA file: %r" % line)
+    # title = line[1:].rstrip()
+    # seq = []
+    # while 1:
+    #     line = file_open.readline().rstrip()
+    #     if line == "":
+    #         break
+    #     seq.append(line)
+    # seq = "".join(seq)
+    # seq.replace("\n", "")
+    # print("sequence name is " + title +  "\n\n")
+    # print ""
+    # print("The top 5 most common " + str(kmer_size) + "mers are..." + "\n")
+    # return seq
 
 
 if __name__ == '__main__':
     [filename, kmer_size] = parsing()
     kmer_size = int (kmer_size)
     seq = read_fasta_file(filename, kmer_size)
-    #most_common_kmer(seq, kmer_size)
-    find_most_common(seq, kmer_size)
+    finaldict = find_most_common(seq, kmer_size)
+    print_top_5(finaldict)

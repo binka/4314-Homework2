@@ -1,4 +1,4 @@
->test1
+>CEESC12R
 gcacgagtccatctccatatgccaccacaacantggtcctgtcgaaccaa
 caaccagcttggctcaatgacaaaatgcttcgcgcgccanaatgccaaca
 aatcccgtgccaccagagccaccggcgcgatatgcagatcataccgctgg
@@ -9,7 +9,7 @@ tagtaaggaaagaantngggagcggagaacaccaccgaataaa
 
 
 
->test2
+>CEESC13F
 cttgcttgaaaaatttatataaatatttaagagaagaaaaataaataatc
 gcatctaatgacgtctgtccttgtatccctggtttccattgactggtgca
 ctttcctgtctttgaggacatggacaatattcggcatcagttcctggctc
@@ -18,5 +18,4 @@ tgtctccacgtggtccacgctctcctggtgctcctggaataccttgagct
 ccctcgtgccgaattcctgcagcccgggggatccactagttctagagcgg
 ccgccaccgcggtgggagctccagcttttgttncctttagtgagggttaa
 tttcgagcttggcgtaatcatggtcatagctgtttcctg
-
 
