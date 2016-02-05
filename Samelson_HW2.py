@@ -13,23 +13,46 @@
 ##############################################################################
 #
 #   Sample command line arguments to run program:
-#   Samelson_HW2.py -f YeastGenome.fasta -l 7
+#   Samelson_HW2.py -f sample_5mer -l 5
 #
 ##############################################################################
 #
 #   Important assumptions:
 #
-#   1-
+#   1- Assuming FASTA file is small enough that a small personal computer can run it
+#
+#   2- Assuming sequences are legitimate and are not filled with random junk
+#
+##############################################################################
+###############################################################################
+#
+#   Speed and memory limitations
+#
+#   O(n^2)
+#
+#   I don't have proof, however, the algorithm is a nested for loop with a single
+#   calculation inside.  This algorithm is not the most efficient, but it is not
+#   the worst case either.  There is an algorithm similar to mine called, the Nussinov
+#   algorithm that runs O(n^2), so I have sufficient reason to believe my algorithm runs
+#   in similar time.
 #
 ##############################################################################
 #
 #   Outline:
 #   I - Parsing command line arguments
 #   II - Finding most common Kmer
-#   III - Reading FASTA file
+#   III - Printing the top 5 most common Kmers
+#   IV - Reading FASTA file
 #
 ##############################################################################
-
+#
+#  References/Collaborators:
+#
+#      1.  Collaborated with Ali Hakimi and Chris Gray
+#
+#      2.  Commenting style formatted after Korshoj
+#
+##############################################################################
 ##############################################################################
 #
 #   I - Parsing command line arguments into variables
@@ -41,6 +64,8 @@
 #   The 'getopt' and 'sys' sets are imported and used to parse incoming
 #   arguments. A help function is called if the user does not enter arguments
 #   correctly.
+#
+#   Properly assures user inputs correct values and throws errors if inputs are not correct
 #
 ##############################################################################
 
@@ -59,9 +84,9 @@ def user_help():
 
 def parsing():
 
-    filename = None # Name of FASTA file
-    chromo = None # Chromosome name in the FASTA file
-    kmer_size = None # size of k-mer to search for
+    filename = None   # Name of FASTA file
+    chromo = None     # Chromosome name in the FASTA file
+    kmer_size = None  # size of k-mer to search for
 
     # Getting the arguments from the user
     try:
@@ -98,81 +123,87 @@ def parsing():
 
     return filename, kmer_size
 
-
-
-# def most_common_kmer(seq, k_size):
-#     accumulator = Counter(seq)
-#     #for length in range (k_size, len(seq) + 1):
-#         #for start in range (len(seq) - length):
-#             #accumulator[seq[start:start+length]] += 1
-#     #print accumulator.most_common(5)
-
 ##############################################################################
 #
-#   II- Finding most common kmer
+#   II- Finding most common kmer of each
 #
-#   1- Program finds all subsequences of given size and counts their frequencies in a dictionary
+#   1- Function finds all unique kmers of the given size and counts their frequencies in a dictionary
 #
-#   2- It then prints the top 5 most common kmer of the given size
+#   2. Function does this for every sequence in the file
+#
+#   3- It then tallies up all the totals and prints the top 5 most common kmers of the given size
+#
+#   for every sequence in the file:
+#        for i to end of each sequence:
+#               find unique kmers
+#        populate second dictionary with number of times kmer appears
+#        reset first dictionary
+#   Reverse the final dictionary, most common to least
+#   Return final dictionary
 ##############################################################################
 
 def find_most_common(sequenceArray, size):
-    # s = 'hello'
-    # sequenceArray = ['hellohellohello', 'skoooooooooooooo']
-    #freq = defaultdict(int)
-    # currentkmer = {}
-    # kmer = ''
-    # numChars = 0
-    # found = 0
-    #
-    # for sequence in s:
-    #     for char in enumerate(sequence):
-    #         index = char[0]
-    #         seqLength = len(sequence)
-    #         for i in range(index, index + size):
-    #             if index <= seqLength - size:
-    #                 kmer += sequence[i]
-    #
-    #         for kmerSequence
 
 
-
+    #Create dictionaries to store unique kmers and frequencies
     freq = defaultdict(int)
     finaldict = defaultdict(int)
-    #print freq
+
+    # Loop through every sequence in the file
     for s in sequenceArray:
         #print "Unique Kmers" + "\n"
         for i in range(len(s) - size + 1):
-            freq[s[i:i + size]] += 1
+            freq[s[i:i + size]] += 1       #find unique kmers and add them to dictionary
 
-        A = Counter(freq)
-        B = Counter(finaldict)
+        for key in freq:                   #populate second dictionary with number of times kmer appears in file
+            if key in finaldict:
+                finaldict[key] += 1
+            else:
+                finaldict[key] = 1
 
-        finaldict = A + B
-        freq = freq.items()
-        #print freq
-        #print '\n'
-        freq = defaultdict(int)
-    # print top_five
-    # print "\n"
-    #print finaldict
+        freq = defaultdict(int)            #reset the first dictionary
+
+
     finaldict = finaldict.items()
-    finaldict.sort(key = lambda item: item[1], reverse=True)
-    #print finaldict
-    top_five = finaldict[:5]
+    finaldict.sort(key = lambda item: item[1], reverse=True)  #reverse sort the final dict, highest to lowest
 
     return finaldict
 
-def print_top_5(finaldict):
+
+
+
+##############################################################################
+#
+#   III- Printing the top 5 most common Kmers
+#
+#   1- Function takes the dictionary, takes the top 5, and outputs them to screen
+#
+##############################################################################
+
+def print_top_5(finaldict, size):
+    orig_stdout = sys.stdout
     finaldict = finaldict[:5]
     print "################################################"
-    print "The top 5 most common Kmers in this FASTA File"
+    print "The top 5 most common " + str(size) +"mers that appear are..."
     print "################################################"
     for i in finaldict:
         print i[0] + " " + str(i[1])
+
+    f = open("SAMPLE.OUT", 'w')                    # output to SAMPLE.OUT
+    sys.stdout = f
+    print "################################################"
+    print "The top 5 most common " + str(size) +"mers that appear are..."
+    print "################################################"
+    for i in finaldict:
+        print i[0] + " " + str(i[1])
+    sys.stdout = orig_stdout
+    f.close()
+
+
+
 ##############################################################################
 #
-#   III- Reading the FASTA file
+#   IV- Reading the FASTA file
 #
 #   1- Opens the FASTA File
 #
@@ -188,7 +219,7 @@ def read_fasta_file(filename, kmer_size):
     sequences = []
     for i in range(len(lines)):
         line = lines[i].strip()
-        if line.startswith('>') == False:
+        if line.startswith('>') == False:                   #Add to sequence if the line doesn't start with '<'
             sequence += line.strip()
             if i == len(lines) -1:
                 sequences.append(sequence)
@@ -197,31 +228,16 @@ def read_fasta_file(filename, kmer_size):
             if sequence:
                 sequences.append(sequence)
             sequence = ""
-    #print sequences
-    #print sequence
-    return sequences
-    # file_open = open(filename,"r")
-    # line = file_open.readline()
-    # if not line.startswith(">"):
-    #     raise TypeError("Not a FASTA file: %r" % line)
-    # title = line[1:].rstrip()
-    # seq = []
-    # while 1:
-    #     line = file_open.readline().rstrip()
-    #     if line == "":
-    #         break
-    #     seq.append(line)
-    # seq = "".join(seq)
-    # seq.replace("\n", "")
-    # print("sequence name is " + title +  "\n\n")
-    # print ""
-    # print("The top 5 most common " + str(kmer_size) + "mers are..." + "\n")
-    # return seq
+
+    return sequences                                        #Return an array of all the sequences in the file
+
 
 
 if __name__ == '__main__':
-    [filename, kmer_size] = parsing()
+    [filename, kmer_size] = parsing()                  # Parse the command line return filename and kmer size to search
     kmer_size = int (kmer_size)
-    seq = read_fasta_file(filename, kmer_size)
-    finaldict = find_most_common(seq, kmer_size)
-    print_top_5(finaldict)
+    seq = read_fasta_file(filename, kmer_size)         # Read  through the file and return an array of sequences
+    finaldict = find_most_common(seq, kmer_size)       # Find most common kmers of given size
+    print_top_5(finaldict, kmer_size)                  # Output results to command line
+
+
